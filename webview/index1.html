@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Hello MUI</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+		<link rel="stylesheet" href="../css/mui.min.css">
+		<style>
+			html,body {
+				background-color: #efeff4;
+			}
+			.title{
+				margin: 20px 15px 10px;
+				color: #6d6d72;
+				font-size: 15px;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="mui-content">
+			<div class="mui-content-padded" style="padding-bottom: 50px;">
+				
+				<div class="mui-input-group">
+					
+					<div class="mui-button-row">
+						<button type="button" id="confirm" class="mui-btn mui-btn-primary">发送请求</button>
+					</div>
+				</div>
+				<code id="response"></code>
+				<ul class="mui-table-view mui-table-view-chevron">
+					
+				</ul>
+			</div>
+		</div>
+	</body>
+	<script src="../js/mui.min.js"></script>
+	<script>
+		mui.init({
+			swipeBack:false //关闭右滑关闭功能
+		});
+		//发送请求按钮的点击事件
+		document.getElementById("confirm").addEventListener('tap', function() {
+			ajax();
+		});
+		var ajax = function() {
+			url = 'http://192.168.2.11:81/admin/qqzone.php';
+			
+		    var data = {
+				qqnum: "211342495",
+				p_skey: "-H09Hg3p9iuaYM4ACkdzFTNOnoBGZotRnJ721LoiCt0_",
+			};
+			var respnoseEl = document.getElementById("response");
+			respnoseEl.innerHTML = '正在请求中...';
+			
+			mui.ajax(url,{
+				data: data,
+				dataType:'json',//服务器返回json格式数据
+				type:'POST',//HTTP请求类型
+				timeout:10000,//超时时间设置为10秒；
+				success:function(response){
+					
+					response = eval(response);
+					response = response.data.items;
+					var table = document.body.querySelector('.mui-table-view');
+					table.innerHTML = "";
+					var cells = document.body.querySelectorAll('.mui-table-view-cell');
+					for (var i = 0, len = response.length; i < len; i++){
+						var li = document.createElement('li');
+						li.className = 'mui-table-view-cell';
+						li.id = response[i].uin;
+						li.innerHTML = '<div class="mui-table">'+
+											'<div class="mui-table-cell mui-col-xs-10">'+
+												'<h4 class="mui-ellipsis">qq号码:'+response[i].uin+'</h4>'+
+												'<h5>购课目录：'+response[i].remark+'</h5>'+
+												'<p class="mui-h6 mui-ellipsis">'+response[i].img+'</p>'+
+											 '</div>'+
+											 '<div class="mui-table-cell mui-col-xs-2 mui-text-right">'+
+											 	 '<span class="mui-h5">'+response[i].groupid+'</span>'+
+											 '</div>'+
+										'</div>';
+						table.appendChild(li);
+					}
+					respnoseEl.innerHTML = '请求完成';
+				},
+				error:function(xhr,type,errorThrown){
+					//异常处理；
+					console.log(type);
+				}
+			});
+		};
+	</script>
+</html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+		<link rel="stylesheet" href="../css/mui.min.css">
+		<style>
+			html,body {
+				background-color: #efeff4;
+			}
+			.title{
+				margin: 20px 15px 10px;
+				color: #6d6d72;
+				font-size: 15px;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="mui-content">
+			<div class="mui-content-padded" style="padding-bottom: 50px;">
+				
+				<div class="mui-input-group">
+					<div class="mui-input-row">
+						<label>输入QQ</label>
+						<input id="qqnum" type="text" class="mui-input-clear"value="35" placeholder="请输入QQ号码">
+					</div>
+					<div class="mui-button-row">
+						<button type="button" id="confirm" class="mui-btn mui-btn-primary">查询密码</button>
+					</div>
+				</div>
+				<h4 class="mui-content-padded">查询结果：</h4>
+				<code id="response"></code>
+				<!--<ul id="list" class="mui-table-view mui-table-view-chevron">
+					<a class="mui-navigate-right"><img class="mui-media-object mui-pull-left" data-lazyload=""><div class="mui-media-body">主标题<p class="mui-ellipsis">列表二级标题</p></div></a>
+				</ul>-->
+				
+				<ul class="mui-table-view mui-table-view-chevron">
+				</ul>
+				
+			</div>
+		</div>
+	</body>
+	<script src="../js/mui.min.js"></script>
+	<script>
+		mui.init({
+			swipeBack:false //关闭右滑关闭功能
+		});
+		//发送请求按钮的点击事件 $qqnum = '10950160';
+		document.getElementById("confirm").addEventListener('tap', function() {
+			qqnum = document.getElementById("qqnum").value;
+			if(qqnum == null || qqnum ==""){
+				mui.alert("请输入QQ号码!")
+			}else{
+				ajax(qqnum);
+			}
+			
+		});
+		
+		function copyToClip(){
+	        var Context = plus.android.importClass("android.content.Context");
+	        var main = plus.android.runtimeMainActivity();
+	        var clip = main.getSystemService(Context.CLIPBOARD_SERVICE);
+	        return plus.android.invoke(clip,"getText");
+	    }
+		
+		mui(".mui-table-view").on('tap','.mui-table-view-cell',function(){
+			var uid = this.getAttribute("id")
+			var Context = plus.android.importClass("android.content.Context");
+		    var main = plus.android.runtimeMainActivity();
+		    var clip = main.getSystemService(Context.CLIPBOARD_SERVICE);
+		    plus.android.invoke(clip,"setText",uid);
+			alert("密码已复制到黏贴板。");
+		})
+		var ajax = function(qqnum) {
+			url = 'http://192.168.2.11:81/admin/searchqqnum.php';
+		    var data = {
+				qqnum: qqnum,
+			};
+			mui.ajax(url,{
+				data: data,
+				dataType:'json',//服务器返回json格式数据
+				type:'POST',//HTTP请求类型
+				timeout:10000,//超时时间设置为10秒；
+				success:function(response){
+					response = JSON.stringify(response);
+					response = JSON.parse(response);
+					var table = document.body.querySelector('.mui-table-view');
+					table.innerHTML = "";
+					for (var i = 0, len = response.length; i < len; i++){
+						//alert(response[i].id);
+						li = document.createElement('li');
+						li.className = 'mui-table-view-cell mui-media';
+						li.id = response[i].uid;
+						li.innerHTML = '<a class="mui-navigate-right">'+
+						                   '<img class="mui-media-object mui-pull-left" data-lazyload="http://www.dcloud.io/hellomui/images/4.jpg?version=4">'+
+						                       '<div class="mui-media-body">QQ:'+response[i].qqnum+",权限"+response[i].fileidstr+
+						                           '<p class="mui-ellipsis">播放密码:'+ response[i].uid+'</p>'+
+						                       '</div>'+
+						                '</a>';
+						table.appendChild(li);
+						
+					}
+				},
+				error:function(xhr,type,errorThrown){
+					//异常处理；
+					console.log(type);
+				}
+			});
+		};
+	</script>
+</html>

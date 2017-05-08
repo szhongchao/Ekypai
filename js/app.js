@@ -19,7 +19,7 @@
 		if (loginInfo.password.length < 6) {
 			return callback('密码最短为 6 个字符');
 		}
-		return owner.createState(loginInfo.account,callback);
+		//return owner.createState(loginInfo.account,callback);
 		mui.ajax(baseUrl + 'admin/doAdminAction.php?act=adminLogin',{
       	 	async:false,
 			data:{
@@ -32,13 +32,11 @@
 			timeout:200,//超时时间设置为2秒；
 			success:function(data){
                 //服务器返回响应，根据响应结果，分析是否登录成功；
-                if(data.type = '1'){
-                	
+                if(data.code == '1'){
                 	return owner.createState(loginInfo.account,callback);
                 }else{
                 	mui.toast('用户名和密码错误');
                 }
-                
             },
 			error:function(xhr,type,errorThrown){
 				//异常处理；   

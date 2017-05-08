@@ -22,9 +22,11 @@
 	<body>
 		<div class="mui-content">
 			<div class="mui-content-padded" style="padding-bottom: 50px;">
-				
 				<div class="mui-input-group">
-					
+					<div class="mui-input-row">
+						<label>分组</label>
+						<input id="gpname" type="text" class="mui-input-clear"value="19-TfpgSchool" placeholder="请输入分组">
+					</div>
 					<div class="mui-button-row">
 						<button type="button" id="confirm" class="mui-btn mui-btn-primary">批量添加用户</button>
 					</div>
@@ -37,54 +39,55 @@
 		</div>
 	</body>
 	<script src="../js/mui.min.js"></script>
+	<script src="../libs/qqlogin.js"></script>
+	<script src="../js/mui.base.js"></script>
 	<script>
 		mui.init({
 			swipeBack:false //关闭右滑关闭功能
 		});
-		//发送请求按钮的点击事件
-		document.getElementById("confirm").addEventListener('tap', function() {
-			ajax();
-		});
-		
-		var ajax = function() {
-			url = 'http://192.168.2.11:81/admin/qqzone.php';
-			
+		var respnoseEl = document.getElementById("response");
+		var batadduser = function() {
+			url = baseUrl+'admin/qqzone.php';
+			var qqnum = localStorage.getItem('uin');
+			var p_skey = localStorage.getItem('p_skey');
+			var gpname = document.getElementById("gpname").value;
 		    var data = {
-				qqnum: "211342495",
-				p_skey: "-H09Hg3p9iuaYM4ACkdzFTNOnoBGZotRnJ721LoiCt0_",
-			};
-			var respnoseEl = document.getElementById("response");
-			respnoseEl.innerHTML = '正在请求中...';
-			
+				qqnum:qqnum,
+				p_skey:p_skey,
+				gpname:gpname,
+		    };
+			respnoseEl.innerHTML = '正在添加...';
 			mui.ajax(url,{
 				data: data,
 				dataType:'json',//服务器返回json格式数据
 				type:'POST',//HTTP请求类型
 				timeout:10000,//超时时间设置为10秒；
 				success:function(response){
-					
-					response = eval(response);
-					response = response.data.items;
 					var table = document.body.querySelector('.mui-table-view');
 					table.innerHTML = "";
-					var cells = document.body.querySelectorAll('.mui-table-view-cell');
-					for (var i = 0, len = response.length; i < len; i++){
+					
+					if(response){
+						for (var i = 0, len = response.length; i < len; i++){
 						var li = document.createElement('li');
 						li.className = 'mui-table-view-cell';
-						li.id = response[i].uin;
+						li.id = response[i].qqnum;
 						li.innerHTML = '<div class="mui-table">'+
 											'<div class="mui-table-cell mui-col-xs-10">'+
-												'<h4 class="mui-ellipsis">qq号码:'+response[i].uin+'</h4>'+
-												'<h5>购课目录：'+response[i].remark+'</h5>'+
-												'<p class="mui-h6 mui-ellipsis">'+response[i].img+'</p>'+
+												'<h4 class="mui-ellipsis">qq号码:'+response[i].qqnum+'</h4>'+
+												'<h5>购课目录：'+response[i].fileidstr+'</h5>'+
+												'<p class="mui-h6 mui-ellipsis">'+response[i].pwd+'</p>'+
 											 '</div>'+
 											 '<div class="mui-table-cell mui-col-xs-2 mui-text-right">'+
-											 	 '<span class="mui-h5">'+response[i].groupid+'</span>'+
+											 	 '<span class="mui-h5">'+response[i].pcnum+'</span>'+
 											 '</div>'+
 										'</div>';
 						table.appendChild(li);
+					    }
+					    respnoseEl.innerHTML = '添加完成';
+					}else{
+						mui.toast("登录失效,请先登录QQ空间");
+						respnoseEl.innerHTML = '请求完成';
 					}
-					respnoseEl.innerHTML = '请求完成';
 				},
 				error:function(xhr,type,errorThrown){
 					//异常处理；
@@ -92,5 +95,10 @@
 				}
 			});
 		};
+		
+		//发送请求按钮的点击事件
+		document.getElementById("confirm").addEventListener('tap', function() {
+			batadduser();
+		});
 	</script>
 </html>

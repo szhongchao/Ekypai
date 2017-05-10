@@ -1,4 +1,4 @@
-var baseurl = 'http://192.168.2.11:81/newsid/'
+var baseUrl = 'http://kypai.gotoip1.com/'
 var xiha={
 	postData: function(url, parameter, callback, dataType, ajaxType) {
 		if(!dataType) dataType='json';
@@ -30,13 +30,13 @@ function login(uin,pwd,vcode,pt_verifysession){
 	$('#load').html('正在登录，请稍等...');
 	var isMd5=$("input:radio[name='ismd5']:checked").val() || 0;
 	p=getmd5(uin,pwd,vcode,isMd5);
-	var loginurl="http://192.168.2.11:81/newsid/login.php?do=qqlogin";
+	var loginurl=baseUrl +"admin/qqlogin.php?do=qqlogin";
 	xiha.postData(loginurl,"uin="+uin+"&pwd="+pwd+"&p="+p+"&vcode="+vcode+"&pt_verifysession="+pt_verifysession+"&r="+Math.random(1), function(d) {
 		if(d.saveOK ==0){
 			$('#login').hide();
 			$('.code').hide();
 			$('#submit').hide();
-			$('#load').html('<div class="alert alert-success">登录成功！'+decodeURIComponent(d.nick)+'</div><div class="input-group"><span class="input-group-addon">QQ帐号</span><input id="uin" value="'+d.uin+'" class="form-control" /></div><br/><div class="input-group"><span class="input-group-addon">SID</span><input id="sid" value="'+d.sid+'" class="form-control"/></div><br/><div class="input-group"><span class="input-group-addon">SKEY</span><input id="skey" value="'+d.skey+'" class="form-control"/></div><br/><div class="input-group"><span class="input-group-addon">P_skey</span><input id="pskey" value="'+d.pskey+'" class="form-control"/></div><br/><div class="input-group"><span class="input-group-addon">superkey</span><input id="superkey" value="'+d.superkey+'" class="form-control"/></div><br/><a href="./webview/qzone.html">返回重新获取</a>');
+			$('#load').html('<div class="alert alert-success">登录成功！'+decodeURIComponent(d.nick)+'</div><div class="input-group"><span class="input-group-addon">QQ帐号</span><input id="uin" value="'+d.uin+'" class="form-control" /></div><br/><div class="input-group"><span class="input-group-addon">SID</span><input id="sid" value="'+d.sid+'" class="form-control"/></div><br/><div class="input-group"><span class="input-group-addon">SKEY</span><input id="skey" value="'+d.skey+'" class="form-control"/></div><br/><div class="input-group"><span class="input-group-addon">P_skey</span><input id="pskey" value="'+d.pskey+'" class="form-control"/></div><br/><div class="input-group"><span class="input-group-addon">superkey</span><input id="superkey" value="'+d.superkey+'" class="form-control"/></div>');
 			localStorage.setItem('uin',d.uin);
 			localStorage.setItem('p_skey',d.pskey)
 		}else if(d.saveOK ==4){
@@ -64,7 +64,7 @@ function login(uin,pwd,vcode,pt_verifysession){
 function getvc(uin,sig,sess){
 	$('#load').html('获取验证码，请稍等...');
 	sess = sess||0;
-	var getvcurl="http://192.168.2.11:81/newsid/login.php?do=getvc";
+	var getvcurl=baseUrl +"admin/qqlogin.php?do=getvc";
 	xiha.postData(getvcurl,'uin='+uin+'&sig='+sig+'&sess='+sess+'&r='+Math.random(1), function(d) {
 		if(d.saveOK ==0){
 			$('#load').html('请输入验证码');
@@ -73,7 +73,7 @@ function getvc(uin,sig,sess){
 			if(typeof d.websig != "undefined"){
 				$('#codeimg').attr('websig',d.websig);
 			}
-			$('#codeimg').html('<img onclick="getvc(\''+uin+'\',\''+d.vc+'\',\''+d.sess+'\')" src="http://192.168.2.11:81/newsid/login.php?do=getvcpic&uin='+uin+'&cap_cd='+sig+'&sig='+d.vc+'&sess='+d.sess+'&r='+Math.random(1)+'" title="点击刷新">');
+			$('#codeimg').html('<img onclick="getvc(\''+uin+'\',\''+d.vc+'\',\''+d.sess+'\')" src="\''+baseUrl+'\admin/qqlogin.php?do=getvcpic&uin='+uin+'&cap_cd='+sig+'&sig='+d.vc+'&sess='+d.sess+'&r='+Math.random(1)+'" title="点击刷新">');
 			$('#submit').attr('do','code');
 			$('#code').val('');
 			$('.code').show();
@@ -92,7 +92,7 @@ function dovc(uin,code,vc){
 	var cap_cd=$('#uin').attr('cap_cd');
 	var sess=$('#codeimg').attr('sess');
 	var websig=$('#codeimg').attr('websig');
-	var getvcurl="http://192.168.2.11:81/newsid/login.php?do=dovc";
+	var getvcurl=baseUrl +"admin/qqlogin.php?do=dovc";
 	xiha.postData(getvcurl,'uin='+uin+'&ans='+code+'&sig='+vc+'&cap_cd='+cap_cd+'&sess='+sess+'&websig='+websig+'&r='+Math.random(1), function(d) {
 		if(d.rcode == 0){
 			var pwd=$('#pwd').val();
@@ -119,7 +119,7 @@ function checkvc(){
 		return false;
 	}
 	$('#load').html('登录中，请稍候...');
-	var getvcurl="http://192.168.2.11:81/newsid/login.php?do=checkvc";
+	var getvcurl=baseUrl +"admin/qqlogin.php?do=checkvc";
 	xiha.postData(getvcurl,'uin='+uin+'&r='+Math.random(1), function(d) {
 		if(d.saveOK ==0){
 			login(uin,pwd,d.vcode,d.pt_verifysession);

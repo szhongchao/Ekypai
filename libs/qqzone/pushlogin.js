@@ -1,9 +1,11 @@
+var baseUrl = 'http://kypai.gotoip1.com/'
+//var baseUrl = 'http://192.168.2.11:81/';
 var interval1,interval2;
 function trim(str){ //去掉头尾空格
 	return str.replace(/(^\s*)|(\s*$)/g, "");
 }
 function getqrpic(uin){
-	var getvcurl='http://192.168.2.11:81/newsid/pushlogin.php?do=getqrpic&uin='+uin+'&r='+Math.random(1);
+	var getvcurl=baseurl+'admin/pushlogin.php?do=getqrpic&uin='+uin+'&r='+Math.random(1);
 	$.get(getvcurl, function(d) {
 		if(d.saveOK ==0){
 			$('#load').html('请在手机QQ上确认登录&nbsp;<span id="loginload" style="padding-left: 10px;color: #790909;">.</span>');
@@ -22,7 +24,7 @@ function ptuiCB(code,uin,sid,skey,pskey,superkey,nick){
 	var msg='';
 	switch(code){
 		case '0':
-			msg='<div class="alert alert-success">登录成功！'+decodeURIComponent(nick)+'</div><div class="input-group"><span class="input-group-addon">QQ帐号</span><input id="uin" value="'+uin+'" class="form-control" /></div><br/><div class="input-group"><span class="input-group-addon">SKEY</span><input id="skey" value="'+skey+'" class="form-control"/></div><br/><div class="input-group"><span class="input-group-addon">P_skey</span><input id="pskey" value="'+pskey+'" class="form-control"/></div><br/><div class="input-group"><span class="input-group-addon">superkey</span><input id="superkey" value="'+superkey+'" class="form-control"/></div><br/><a href="qzone3.html">返回重新获取</a>';
+			msg='<div class="alert alert-success">登录成功！'+decodeURIComponent(nick)+'</div><div class="input-group"><span class="input-group-addon">QQ帐号</span><input id="uin" value="'+uin+'" class="form-control" /></div><br/><div class="input-group"><span class="input-group-addon">SKEY</span><input id="skey" value="'+skey+'" class="form-control"/></div><br/><div class="input-group"><span class="input-group-addon">P_skey</span><input id="pskey" value="'+pskey+'" class="form-control"/></div><br/><div class="input-group"><span class="input-group-addon">superkey</span><input id="superkey" value="'+superkey+'" class="form-control"/></div>';
 			$('#login').hide();
 			$('#submit').hide();
 			localStorage.setItem('uin',uin);
@@ -47,7 +49,7 @@ function ptuiCB(code,uin,sid,skey,pskey,superkey,nick){
 function loadScript(c) {
 	if ($('#login').attr("data-lock") === "true") return;
 	var qrsig=$('#uin').attr('qrsig');
-	c = c || "http://192.168.2.11:81/newsid/pushlogin.php?do=qqlogin&qrsig="+decodeURIComponent(qrsig)+"&r=" + Math.random(1);
+	c = c || baseUrl+"admin/pushlogin.php?do=qqlogin&qrsig="+decodeURIComponent(qrsig)+"&r=" + Math.random(1);
 	var a = document.createElement("script");
 	a.onload = a.onreadystatechange = function() {
 		if (!this.readyState || this.readyState === "loaded" || this.readyState === "complete") {

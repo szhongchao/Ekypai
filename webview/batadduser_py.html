@@ -39,6 +39,7 @@
 		</div>
 	</body>
 	<script src="../js/mui.min.js"></script>
+	<script src="../libs/qqlogin.js"></script>
 	<script src="../js/mui.base.js"></script>
 	<script>
 		mui.init({
@@ -46,71 +47,51 @@
 		});
 		var respnoseEl = document.getElementById("response");
 		var batadduser = function() {
-			url = basUrl+'admin/qqzone.php';
+			url = baseUrl+'admin/qqzone.php';
 			var qqnum = localStorage.getItem('uin');
 			var p_skey = localStorage.getItem('p_skey');
 			var gpname = document.getElementById("gpname").value;
-		    
-		    var hash = 5381;
-		   	for(var i = 0, len = p_skey.length; i < len; ++i) 
-		   	{ 
-		   		hash += (hash << 5) + p_skey.charAt(i).charCodeAt();
-		   	} 
-		   	
-		   	var g_tk = hash & 0x7fffffff; 
-		    
 		    var data = {
 				qqnum:qqnum,
 				p_skey:p_skey,
 				gpname:gpname,
-				g_tk:g_tk,
 		    };
-		    //alert('qqnum:'+qqnum+';p_skey:'+p_skey+';gpname:'+gpname+';g_tk;'+g_tk);
-			respnoseEl.innerHTML = '正在请求服务器...';
+			respnoseEl.innerHTML = '正在添加...';
 			mui.ajax(url,{
 				data: data,
-				//dataType:'json',//服务器返回json格式数据
+				dataType:'json',//服务器返回json格式数据
 				type:'POST',//HTTP请求类型
-				timeout:100000,//超时时间设置为100秒；
+				timeout:10000,//超时时间设置为10秒；
 				success:function(response){
-					respnoseEl.innerHTML = '请求成功...';
-					response = eval(response);
 					var table = document.body.querySelector('.mui-table-view');
 					table.innerHTML = "";
-					if(response==''){
-						respnoseEl.innerHTML = '请求完成';
-						mui.alert("没有新客户!");
+					
+					if(response){
+						for (var i = 0, len = response.length; i < len; i++){
+						var li = document.createElement('li');
+						li.className = 'mui-table-view-cell';
+						li.id = response[i].qqnum;
+						li.innerHTML = '<div class="mui-table">'+
+											'<div class="mui-table-cell mui-col-xs-10">'+
+												'<h4 class="mui-ellipsis">qq号码:'+response[i].qqnum+'</h4>'+
+												'<h5>购课目录：'+response[i].fileidstr+'</h5>'+
+												'<p class="mui-h6 mui-ellipsis">'+response[i].pwd+'</p>'+
+											 '</div>'+
+											 '<div class="mui-table-cell mui-col-xs-2 mui-text-right">'+
+											 	 '<span class="mui-h5">'+response[i].pcnum+'</span>'+
+											 '</div>'+
+										'</div>';
+						table.appendChild(li);
+					    }
+					    respnoseEl.innerHTML = '添加完成';
 					}else{
-						if(response[0].cid == '000000'){
-							respnoseEl.innerHTML = '请求完成';
-							mui.alert("请求失败,请先登录QQ空间");
-						}else{
-							var i = 0;
-							for (i = 0, len = response.length; i < len; i++){
-							var li = document.createElement('li');
-							li.className = 'mui-table-view-cell';
-							li.id = response[i].qqnum;
-							li.innerHTML = '<div class="mui-table">'+
-												'<div class="mui-table-cell mui-col-xs-10">'+
-													'<h4 class="mui-ellipsis">qq号码:'+response[i].qqnum+'</h4>'+
-													'<h5>购课目录：'+response[i].fileidstr+'</h5>'+
-													'<p class="mui-h6 mui-ellipsis">'+response[i].pwd+'</p>'+
-												 '</div>'+
-												 '<div class="mui-table-cell mui-col-xs-2 mui-text-right">'+
-												 	 '<span class="mui-h5">'+response[i].pcnum+'</span>'+
-												 '</div>'+
-											'</div>';
-							table.appendChild(li);
-						    }
-							mui.toast("添加了"+i +"个用户");
-						    respnoseEl.innerHTML = '添加完成';
-					   }
+						mui.toast("登录失效,请先登录QQ空间");
+						respnoseEl.innerHTML = '请求完成';
 					}
 				},
 				error:function(xhr,type,errorThrown){
 					//异常处理；
-					mui.alert(type);
-					respnoseEl.innerHTML = '请求失败';
+					console.log(type);
 				}
 			});
 		};

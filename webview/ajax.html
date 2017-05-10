@@ -44,7 +44,7 @@
 			ajax();
 		});
 		var ajax = function() {
-			url = 'http://192.168.2.11:81/admin/doAdminAction.php?act=adminLogin';
+			url = 'http://kypai.gotoip1.com/admin/doAdminAction.php?act=adminLogin';
 			
 			var data = {
 				username: "admin",
@@ -55,16 +55,23 @@
 			respnoseEl.innerHTML = '正在请求中...';
 			
 			mui.ajax(url,{
-				data: data,
-				dataType:'json',//服务器返回json格式数据
+				async:false,
+				data: {
+					username: "admin",
+					password: "111111",
+					verify:"000000",
+				},
+				//dataType:'json',//服务器返回json格式数据
 				type:'POST',//HTTP请求类型
 				timeout:10000,//超时时间设置为10秒；
 				success:function(response){
+					response = eval(response);
 					response = JSON.stringify(response);
 					respnoseEl.innerHTML = response;
 				},
 				error:function(xhr,type,errorThrown){
-					//异常处理；
+					mui.alert(type);
+					respnoseEl.innerHTML = '请求失败';
 					console.log(type);
 				}
 			});

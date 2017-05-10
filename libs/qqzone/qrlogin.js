@@ -1,6 +1,7 @@
+var baseUrl = 'http://kypai.gotoip1.com/'
 var interval1,interval2;
 function getqrpic(){
-	var getvcurl='http://192.168.2.11:81/newsid/qrlogin.php?do=getqrpic&r='+Math.random(1);
+	var getvcurl=baseUrl+'admin/qrlogin.php?do=getqrpic&r='+Math.random(1);
 	$.get(getvcurl, function(d) {
 		if(d.saveOK ==0){
 			$('#qrimg').attr('qrsig',d.qrsig);
@@ -14,7 +15,7 @@ function ptuiCB(code,uin,sid,skey,pskey,superkey,nick){
 	var msg='请扫描二维码';
 	switch(code){
 		case '0':
-			$('#login').html('<div class="alert alert-success">登录成功！'+decodeURIComponent(nick)+'</div><div class="input-group"><span class="input-group-addon">QQ帐号</span><input id="uin" value="'+uin+'" class="form-control" /></div><br/><div class="input-group"><span class="input-group-addon">SKEY</span><input id="skey" value="'+skey+'" class="form-control"/></div><br/><div class="input-group"><span class="input-group-addon">P_skey</span><input id="pskey" value="'+pskey+'" class="form-control"/></div><br/><div class="input-group"><span class="input-group-addon">superkey</span><input id="superkey" value="'+superkey+'" class="form-control"/></div><br/><a href="qzone2.html">返回重新获取</a>');
+			$('#login').html('<div class="alert alert-success">登录成功！'+decodeURIComponent(nick)+'</div><div class="input-group"><span class="input-group-addon">QQ帐号</span><input id="uin" value="'+uin+'" class="form-control" /></div><br/><div class="input-group"><span class="input-group-addon">SKEY</span><input id="skey" value="'+skey+'" class="form-control"/></div><br/><div class="input-group"><span class="input-group-addon">P_skey</span><input id="pskey" value="'+pskey+'" class="form-control"/></div><br/><div class="input-group"><span class="input-group-addon">superkey</span><input id="superkey" value="'+superkey+'" class="form-control"/></div>');
 			$('#qrimg').hide();
 			$('#submit').hide();
 			$('#login').attr("data-lock", "true");
@@ -41,7 +42,7 @@ function ptuiCB(code,uin,sid,skey,pskey,superkey,nick){
 function loadScript(c) {
 	if ($('#login').attr("data-lock") === "true") return;
 	var qrsig=$('#qrimg').attr('qrsig');
-	c = c || "http://192.168.2.11:81/newsid/qrlogin.php?do=qqlogin&qrsig="+decodeURIComponent(qrsig)+"&r=" + Math.random(1);
+	c = c || baseUrl+"admin/qrlogin.php?do=qqlogin&qrsig="+decodeURIComponent(qrsig)+"&r=" + Math.random(1);
 	var a = document.createElement("script");
 	a.onload = a.onreadystatechange = function() {
 		if (!this.readyState || this.readyState === "loaded" || this.readyState === "complete") {

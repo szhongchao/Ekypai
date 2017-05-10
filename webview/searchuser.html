@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
@@ -7,29 +8,33 @@
 		<meta name="apple-mobile-web-app-status-bar-style" content="black">
 		<link rel="stylesheet" href="../css/mui.min.css">
 		<style>
-			html,body {
+			html,
+			body {
 				background-color: #efeff4;
 			}
-			.title{
+			
+			.title {
 				margin: 20px 15px 10px;
 				color: #6d6d72;
 				font-size: 15px;
 			}
 		</style>
 	</head>
+
 	<body>
 		<div class="mui-content">
 			<div class="mui-content-padded" style="padding-bottom: 50px;">
 				<div class="mui-input-group">
 					<div class="mui-input-row">
 						<label>输入QQ</label>
-						<input id="qqnum" type="text" class="mui-input-clear"value="351" placeholder="请输入QQ号码">
+						<input id="qqnum" type="text" class="mui-input-clear" value="49" placeholder="请输入QQ号码">
 					</div>
 					<div class="mui-button-row">
 						<button type="button" id="confirm" class="mui-btn mui-btn-primary">查询密码</button>
 					</div>
 				</div>
 				<code id="response"></code>
+
 				<!--<ul id="list" class="mui-table-view mui-table-view-chevron">
 					<a class="mui-navigate-right"><img class="mui-media-object mui-pull-left" data-lazyload=""><div class="mui-media-body">主标题<p class="mui-ellipsis">列表二级标题</p></div></a>
 				</ul>-->
@@ -39,75 +44,97 @@
 		</div>
 	</body>
 	<script src="../js/mui.min.js"></script>
+	<script type="text/javascript" src="../js/mui.base.js"></script>
 	<script>
 		mui.init({
-			swipeBack:false //关闭右滑关闭功能
+			swipeBack: false //关闭右滑关闭功能
 		});
 		//发送请求按钮的点击事件 $qqnum = '10950160';
 		document.getElementById("confirm").addEventListener('tap', function() {
 			qqnum = document.getElementById("qqnum").value;
-			if(qqnum == null || qqnum ==""){
+			if(qqnum == null || qqnum == "") {
 				mui.alert("请输入QQ号码!")
-			}else{
+			} else {
 				ajax(qqnum);
 			}
 		});
-		function copyToClip(){
-	        var Context = plus.android.importClass("android.content.Context");
-	        var main = plus.android.runtimeMainActivity();
-	        var clip = main.getSystemService(Context.CLIPBOARD_SERVICE);
-	        return plus.android.invoke(clip,"getText");
-	    }
-		mui(".mui-table-view").on('tap','.mui-table-view-cell',function(){
-			var uid = this.getAttribute("id")
-			var Context = plus.android.importClass("android.content.Context");
-		    var main = plus.android.runtimeMainActivity();
-		    var clip = main.getSystemService(Context.CLIPBOARD_SERVICE);
-		    plus.android.invoke(clip,"setText",uid);
-			alert("密码已复制到黏贴板。");
+
+		function copyToClip(uid) {
+			switch(plus.os.name) {
+				case "Android":
+					// Android平台: plus.android.*
+					var Context = plus.android.importClass("android.content.Context");
+					var main = plus.android.runtimeMainActivity();
+					var clip = main.getSystemService(Context.CLIPBOARD_SERVICE);
+					plus.android.invoke(clip, "setText", uid);
+					mui.alert("密码已复制到黏贴板。");
+					break;
+				case "iOS":
+					// iOS平台: plus.ios.*
+					var UIPasteboard  = plus.ios.importClass("UIPasteboard");
+					var generalPasteboard = UIPasteboard.generalPasteboard();
+					// 设置文本内容:
+					generalPasteboard.setValueforPasteboardType(uid, "public.utf8-plain-text");
+					// 获取文本内容:
+					//var value = generalPasteboard.valueForPasteboardType("public.utf8-plain-text");
+					mui.alert("密码已复制到黏贴板!");
+					break;
+				default:
+					// 其它平台
+					break;
+			}
+		}
+		mui(".mui-table-view").on('tap', '.mui-table-view-cell', function() {
+			var uid = this.getAttribute("id");
+			copyToClip(uid);
 		})
-		
+
 		var ajax = function(qqnum) {
-			url = 'http://192.168.2.11:81/admin/searchqqnum.php';
-		    var data = {
+			url = basUrl + 'admin/searchqqnum.php';
+			var data = {
 				qqnum: qqnum,
 			};
 			var respnoseEl = document.getElementById("response");
-			respnoseEl.innerHTML = '正在查询...';
-			mui.ajax(url,{
+			respnoseEl.innerHTML = '正在请求服务器...';
+			mui.ajax(url, {
 				data: data,
-				dataType:'json',//服务器返回json格式数据
-				type:'POST',//HTTP请求类型
-				timeout:10000,//超时时间设置为10秒；
-				success:function(response){
-					if(response == ""){
-						mui.alert("用户不存在")
-					}
+				//dataType:'json',//服务器返回json格式数据
+				type: 'POST', //HTTP请求类型
+				timeout: 60000, //超时时间设置为60秒；
+				success: function(response) {
+					response = eval(response);
+					respnoseEl.innerHTML = '请求成功,正在查询...';
 					var table = document.body.querySelector('.mui-table-view');
 					table.innerHTML = "";
-					response = JSON.stringify(response);
-					response = JSON.parse(response);
-					
-					for (var i = 0, len = response.length; i < len; i++){
-						//alert(response[i].id);
-						li = document.createElement('li');
-						li.className = 'mui-table-view-cell mui-media';
-						li.id = response[i].uid;
-						li.innerHTML = '<a class="mui-navigate-right">'+
-						                   '<img class="mui-media-object mui-pull-left" data-lazyload="http://www.dcloud.io/hellomui/images/4.jpg?version=4">'+
-						                       '<div class="mui-media-body">QQ:'+response[i].qqnum+",权限"+response[i].fileidstr+
-						                           '<p class="mui-ellipsis">播放密码:'+ response[i].uid+'</p>'+
-						                       '</div>'+
-						                '</a>';
-						table.appendChild(li);
+					if(response == "") {
+						mui.alert("用户不存在.");
+						respnoseEl.innerHTML = '查询完成,用户不存在!';
+					}else{
+						var i = 0;
+						for(i = 0, len = response.length; i < len; i++) {
+							//alert(response[i].id);
+							li = document.createElement('li');
+							li.className = 'mui-table-view-cell mui-media';
+							li.id = response[i].uid;
+							li.innerHTML = '<a class="mui-navigate-right">' +
+								'<img class="mui-media-object mui-pull-left" data-lazyload="http://www.dcloud.io/hellomui/images/4.jpg?version=4">' +
+								'<div class="mui-media-body">QQ:' + response[i].qqnum + ",权限" + response[i].fileidstr +
+								'<p class="mui-ellipsis">播放密码:' + response[i].uid + '</p>' +
+								'</div>' +
+								'</a>';
+							table.appendChild(li);
+						}
+						mui.toast("查到"+i+"个用户.")
+						respnoseEl.innerHTML = '查询完成,请点击用户复制密码!';
 					}
-				respnoseEl.innerHTML = '查询完成';
 				},
-				error:function(xhr,type,errorThrown){
+				error: function(xhr, type, errorThrown) {
 					//异常处理；
-					console.log(type);
+					mui.alert(type);
+					respnoseEl.innerHTML = '请求失败';
 				}
 			});
 		};
 	</script>
+
 </html>

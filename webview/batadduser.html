@@ -25,7 +25,7 @@
 				<div class="mui-input-group">
 					<div class="mui-input-row">
 						<label>分组</label>
-						<input id="gpname" type="text" class="mui-input-clear"value="19-TfpgSchool" placeholder="请输入分组">
+						<input id="gpname" type="text" class="mui-input-clear"value="18-TfpgSchool" placeholder="请输入分组">
 					</div>
 					<div class="mui-button-row">
 						<button type="button" id="confirm" class="mui-btn mui-btn-primary">批量添加用户</button>
@@ -51,19 +51,19 @@
 			var p_skey = localStorage.getItem('p_skey');
 			var gpname = document.getElementById("gpname").value;
 		    
-		    var hash = 5381;
+		    /*var hash = 5381;
 		   	for(var i = 0, len = p_skey.length; i < len; ++i) 
 		   	{ 
 		   		hash += (hash << 5) + p_skey.charAt(i).charCodeAt();
 		   	} 
 		   	
-		   	var g_tk = hash & 0x7fffffff; 
+		   	var g_tk = hash & 0x7fffffff; */
 		    
 		    var data = {
 				qqnum:qqnum,
 				p_skey:p_skey,
 				gpname:gpname,
-				g_tk:g_tk,
+				//g_tk:g_tk,
 		    };
 		    //alert('qqnum:'+qqnum+';p_skey:'+p_skey+';gpname:'+gpname+';g_tk;'+g_tk);
 			respnoseEl.innerHTML = '正在请求服务器...';
@@ -71,7 +71,7 @@
 				data: data,
 				//dataType:'json',//服务器返回json格式数据
 				type:'POST',//HTTP请求类型
-				timeout:100000,//超时时间设置为100秒；
+				timeout:1000000,//超时时间设置为1000秒；
 				success:function(response){
 					respnoseEl.innerHTML = '请求成功...';
 					response = eval(response);

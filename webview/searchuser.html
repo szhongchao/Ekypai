@@ -38,7 +38,7 @@
 				<!--<ul id="list" class="mui-table-view mui-table-view-chevron">
 					<a class="mui-navigate-right"><img class="mui-media-object mui-pull-left" data-lazyload=""><div class="mui-media-body">主标题<p class="mui-ellipsis">列表二级标题</p></div></a>
 				</ul>-->
-				<ul class="mui-table-view mui-table-view-chevron">
+				<ul id="OA_task_2" class="mui-table-view">
 				</ul>
 			</div>
 		</div>
@@ -88,14 +88,26 @@
 			var uid = this.getAttribute("id");
 			copyToClip(uid);
 		})
-
+		mui('#OA_task_2').on('slideleft', '.mui-table-view-cell', function(event) {
+			var uid = this.getAttribute("id");
+			var elem = this;
+			mui.openWindow({
+			   id:'user-info',
+			   url:'user-info.html',
+			   extras:{
+				    uid:uid,
+				    //state:state,
+				   }
+			});
+			mui.swipeoutClose(elem);
+		});
 		var ajax = function(qqnum) {
 			url = basUrl + 'admin/searchqqnum.php';
 			var data = {
 				qqnum: qqnum,
 			};
 			var respnoseEl = document.getElementById("response");
-			respnoseEl.innerHTML = '正在请求服务器...';
+			plus.nativeUI.showWaiting("正在请求服务器");//这里是开始显示原生等待框
 			mui.ajax(url, {
 				data: data,
 				//dataType:'json',//服务器返回json格式数据
@@ -103,12 +115,16 @@
 				timeout: 60000, //超时时间设置为60秒；
 				success: function(response) {
 					response = eval(response);
-					respnoseEl.innerHTML = '请求成功,正在查询...';
 					var table = document.body.querySelector('.mui-table-view');
 					table.innerHTML = "";
 					if(response == "") {
 						mui.alert("用户不存在.");
 						respnoseEl.innerHTML = '查询完成,用户不存在!';
+					}else if(response[0].cid == '000000'){
+							plus.nativeUI.closeWaiting();//这里监听页面是否加载完毕，完成后关闭等待框
+							mui.toast("请求失败,请先登录");
+							//跳转到登录页面
+							plus.webview.getLaunchWebview().show("pop-in");
 					}else{
 						var i = 0;
 						for(i = 0, len = response.length; i < len; i++) {
@@ -116,19 +132,25 @@
 							li = document.createElement('li');
 							li.className = 'mui-table-view-cell mui-media';
 							li.id = response[i].uid;
-							li.innerHTML = '<a class="mui-navigate-right">' +
-								'<img class="mui-media-object mui-pull-left" data-lazyload="http://www.dcloud.io/hellomui/images/4.jpg?version=4">' +
-								'<div class="mui-media-body">QQ:' + response[i].qqnum + ",权限" + response[i].fileidstr +
-								'<p class="mui-ellipsis">播放密码:' + response[i].uid + '</p>' +
-								'</div>' +
-								'</a>';
+							li.innerHTML = '<div class="mui-slider-right mui-disabled">'+
+												'<a class="mui-btn mui-btn-red">修改</a>'+
+											'</div>' +
+											'<div class="mui-slider-handle mui-table">'+
+												'<div class="mui-media-body">QQ:'+ response[i].qqnum + ",密码" + response[i].uid +
+													'<p class="mui-ellipsis">权限:' + response[i].fileidstr +  '</p>'+
+												'</div>'+
+											'</div>';
+											
+											
 							table.appendChild(li);
 						}
 						mui.toast("查到"+i+"个用户.")
 						respnoseEl.innerHTML = '查询完成,请点击用户复制密码!';
 					}
+					plus.nativeUI.closeWaiting();//这里监听页面是否加载完毕，完成后关闭等待框
 				},
 				error: function(xhr, type, errorThrown) {
+					plus.nativeUI.closeWaiting();//这里监听页面是否加载完毕，完成后关闭等待框
 					//异常处理；
 					mui.alert(type);
 					respnoseEl.innerHTML = '请求失败';

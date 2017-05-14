@@ -52,7 +52,7 @@
 			var aniShow = {};
 			
 			 //创建子页面，首个选项卡页面显示，其它均隐藏；
-			mui.plusReady(function() {
+			window.addEventListener('show', function() {
 				var self = plus.webview.currentWebview();
 				for (var i = 0; i < 4; i++) {
 					var temp = {};
@@ -65,7 +65,29 @@
 					}
 					self.append(sub);
 				}
-			});
+				/*var oldBack = mui.back;
+				mui.back = function() {
+					if (viewApi.canBack()) { //如果view可以后退，则执行view的后退
+						viewApi.back();
+					} else { //执行webview后退
+						oldBack();
+					}
+				};*/
+				mui.oldBack = mui.back;
+				var backButtonPress = 0;
+				mui.back = function(event) {
+					backButtonPress++;
+					if (backButtonPress > 1) {
+						plus.runtime.quit();
+					} else {
+						plus.nativeUI.toast('再按一次退出应用');
+					}
+					setTimeout(function() {
+						backButtonPress = 0;
+					}, 1000);
+					return false;
+				};
+			}, false);
 			 //当前激活选项
 			var activeTab = subpages[0];
 			var title = document.getElementById("title");

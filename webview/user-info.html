@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+		<!--标准mui.css-->
+		<link rel="stylesheet" href="../css/mui.min.css">
+		<!--App自定义的css-->
+		<!--<link rel="stylesheet" type="text/css" href="../css/app.css"/>-->
+		<style>
+		 	.mui-content-padded {
+				padding: 10px;
+			}
+			body,body .mui-content {
+				background-color: #fff !important;
+			}
+			code {
+				word-wrap: break-word;
+				word-break: normal;
+				font-size: 90%;
+				color: #c7254e;
+				background-color: #f9f2f4;
+				border-radius: 4px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 id="report-title" class="mui-title">详细信息</h1>
+		</header>
+		<div class="mui-content">
+			<div class="mui-content-padded" style="padding-bottom: 50px;">
+
+				<form class="mui-input-group">
+					<div class="mui-input-row">
+						<label>激活码:</label>
+						<input id="uid" type="text" class="mui-input-clear" placeholder="激活码不能修改"editable="false">
+					</div>
+					<div class="mui-input-row">
+						<label>用户QQ号:</label>
+						<input id="qqnum" type="text" class="mui-input-clear" placeholder="请输入QQ号码">
+					</div>
+					<div class="mui-input-row">
+						<label>播放权限:</label>
+						<input id="fileidstr" type="text" class="mui-input-clear" placeholder="请输入权限">
+					</div>
+					
+				</form>
+			</div>
+		</div>
+		<script src="../js/mui.min.js"></script>
+		<script src="../js/app.js"></script>
+		<script type="text/javascript" src="../js/mui.base.js" ></script>
+		<script>
+			mui.init({
+				swipeBack:true //启用右滑关闭功能
+			});
+			var network = true;
+			var getUserInfo = function(uid){
+				url = baseUrl+'report/getuserInfo.action?uid='+uid;
+				mui.getJSON(url , function(response) {
+						document.getElementById("uid").value = response.carNum;
+						document.getElementById("qqnum").value = response.rentNetId;
+						document.getElementById("fileidstr").value = response.rentNum;
+					}
+				);
+			}
+			var UserInfoAjax= function(qqnum,fileidstr,uid,action){
+				url =baseUrl+ 'admin/serarchqqnum?action='+action+
+											    '&qqnum='+qqnum+
+											    '&fileidstr='+fileidstr+
+											    '&uid='+uid;
+				mui.getJSON(url, function(response) {
+						 if(response.resultInfo != null && response.resultInfo.type =='1'){
+						 	/*mui.alert(message)
+						 	mui.back()*/
+						 	mui.init({
+								beforeback: function(){
+									//获得列表界面的webview
+									var list = plus.webview.getWebviewById('task-list');
+									//触发列表界面的自定义事件（refresh）,从而进行数据刷新
+									mui.alert(message);
+									mui.fire(list,'refreshReportList');
+									//返回true，继续页面关闭逻辑
+									return true;
+								}
+							});
+						 mui.back()
+						 }else if(response.resultInfo != null && response.resultInfo.type =='0'){
+						 	mui.alert("数据请求失败");
+						 }
+					}
+				);
+			}
+			var submitFun = function(action){
+				if(network){
+					var qqnum = document.getElementById("qqnum").value
+					var fileidstr  = document.getElementById("fileidstr").value
+					var uid  = document.getElementById("uid").value
+					if (qqnum.length < 5) {
+						mui.alert("QQ号码最短为6个字符")
+						return;
+					}
+					if (fileidstr.length < 6) {
+						mui.alert("用户权限至少为4个字符");
+						return;
+					}if (uid.length < 14) {
+						mui.alert("激活码至少为14个字符");
+						return;
+					}
+					UserInfoAjax(qqnum,fileidstr,uid,action);
+				}else{
+					mui.toast("当前网络不给力，请稍后再试");
+				}
+			}
+			if(mui.os.plus){
+				mui.plusReady(function () {
+					if(plus.networkinfo.getCurrentType()==plus.networkinfo.CONNECTION_NONE){
+						network = false;
+					}
+				});
+			}
+			if(network){
+				mui.plusReady(function(){
+				var self = plus.webview.currentWebview();
+				uid = self.uid;
+				getUserInfo(uid);
+				});				
+			}else{
+				mui.toast("当前网络不给力，请稍后再试");
+			}
+		</script>
+	</body>
+
+</html>

@@ -20,32 +20,34 @@
 		if (loginInfo.password.length < 6) {
 			return callback('密码最短为 6 个字符');
 		}
+		plus.nativeUI.showWaiting("正在登录...");//这里是开始显示原生等待框
 		//return owner.createState(loginInfo.account,callback);
 		url = baseUrl +'admin/doAdminAction.php?act=adminLogin';
 		mui.ajax(url,{
-				data: {
-					username: loginInfo.account,
-					password: loginInfo.password,
-					verify: "000000",
-				},
-				//dataType:'json',//服务器返回json格式数据
-				type:'POST',//HTTP请求类型
-				timeout:10000,//超时时间设置为10秒；
-				success:function(response){
-					
-					response = eval(response);
-					if(response[0].code == '1'){
-						return owner.createState(loginInfo.account,callback);
-					}else{
-						return callback('用户名和密码错误');
-					}
-					
-				},
-				error:function(xhr,type,errorThrown){
-					//异常处理；   
-                	return callback('连接服务器失败');
+			data: {
+				username: loginInfo.account,
+				password: loginInfo.password,
+				verify: "000000",
+			},
+			//dataType:'json',//服务器返回json格式数据
+			type:'POST',//HTTP请求类型
+			timeout:10000,//超时时间设置为10秒；
+			success:function(response){
+				response = eval(response);
+				plus.nativeUI.closeWaiting();//这里监听页面是否加载完毕，完成后关闭等待框
+				if(response[0].code == '1'){
+					return owner.createState(loginInfo.account,callback);
+				}else{
+					return callback('用户名和密码错误');
 				}
-			});
+			},
+			error:function(xhr,type,errorThrown){
+				//异常处理；   
+				plus.nativeUI.closeWaiting();//这里监听页面是否加载完毕，完成后关闭等待框
+            	return callback('连接服务器失败');
+			}
+		});
+			
 	};
 
 	owner.createState = function(name, callback) {

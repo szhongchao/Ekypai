@@ -66,7 +66,7 @@
 				//g_tk:g_tk,
 		    };
 		    //alert('qqnum:'+qqnum+';p_skey:'+p_skey+';gpname:'+gpname+';g_tk;'+g_tk);
-			respnoseEl.innerHTML = '正在请求服务器...';
+			plus.nativeUI.showWaiting("正在请求服务器");//这里是开始显示原生等待框
 			mui.ajax(url,{
 				data: data,
 				//dataType:'json',//服务器返回json格式数据
@@ -83,8 +83,14 @@
 					}else{
 						if(response[0].cid == '000000'){
 							respnoseEl.innerHTML = '请求完成';
+							mui.alert("请求失败,请先登录");
+							//跳转到登录页面
+							plus.webview.getLaunchWebview().show("pop-in");
+						}else if(response[0].cid == '000001'){
+							respnoseEl.innerHTML = '请求完成';
 							mui.alert("请求失败,请先登录QQ空间");
-						}else{
+						}
+						else{
 							var i = 0;
 							for (i = 0, len = response.length; i < len; i++){
 							var li = document.createElement('li');
@@ -106,15 +112,16 @@
 						    respnoseEl.innerHTML = '添加完成';
 					   }
 					}
+					plus.nativeUI.closeWaiting();//这里监听页面是否加载完毕，完成后关闭等待框
 				},
 				error:function(xhr,type,errorThrown){
 					//异常处理；
+					plus.nativeUI.closeWaiting();//这里监听页面是否加载完毕，完成后关闭等待框
 					mui.alert(type);
 					respnoseEl.innerHTML = '请求失败';
 				}
 			});
 		};
-		
 		//发送请求按钮的点击事件
 		document.getElementById("confirm").addEventListener('tap', function() {
 			batadduser();

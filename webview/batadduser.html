@@ -50,7 +50,6 @@
 			var qqnum = localStorage.getItem('uin');
 			var p_skey = localStorage.getItem('p_skey');
 			var gpname = document.getElementById("gpname").value;
-		    
 		    /*var hash = 5381;
 		   	for(var i = 0, len = p_skey.length; i < len; ++i) 
 		   	{ 
@@ -58,14 +57,12 @@
 		   	} 
 		   	
 		   	var g_tk = hash & 0x7fffffff; */
-		    
 		    var data = {
 				qqnum:qqnum,
 				p_skey:p_skey,
 				gpname:gpname,
 				//g_tk:g_tk,
 		    };
-		    //alert('qqnum:'+qqnum+';p_skey:'+p_skey+';gpname:'+gpname+';g_tk;'+g_tk);
 			plus.nativeUI.showWaiting("正在请求服务器");//这里是开始显示原生等待框
 			mui.ajax(url,{
 				data: data,
@@ -81,12 +78,12 @@
 						respnoseEl.innerHTML = '请求完成';
 						mui.alert("没有新客户!");
 					}else{
-						if(response[0].cid == '000000'){
+						if(response[0].cid == '登录失败'){
 							respnoseEl.innerHTML = '请求完成';
-							mui.alert("请求失败,请先登录");
+							mui.toast("请求失败,请先登录");
 							//跳转到登录页面
 							plus.webview.getLaunchWebview().show("pop-in");
-						}else if(response[0].cid == '000001'){
+						}else if(response[0].cid == 'QQ空间登录失败'){
 							respnoseEl.innerHTML = '请求完成';
 							mui.alert("请求失败,请先登录QQ空间");
 						}

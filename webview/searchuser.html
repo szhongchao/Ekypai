@@ -44,6 +44,7 @@
 		</div>
 	</body>
 	<script src="../js/mui.min.js"></script>
+	<script src="../js/app.js"></script>
 	<script type="text/javascript" src="../js/mui.base.js"></script>
 	<script>
 		mui.init({
@@ -102,7 +103,7 @@
 			mui.swipeoutClose(elem);
 		});
 		var ajax = function(qqnum) {
-			url = basUrl + 'admin/searchqqnum.php';
+			url =basUrl+ 'admin/searchqq.php?act=getUserlist';
 			var data = {
 				qqnum: qqnum,
 			};
@@ -120,7 +121,7 @@
 					if(response == "") {
 						mui.alert("用户不存在.");
 						respnoseEl.innerHTML = '查询完成,用户不存在!';
-					}else if(response[0].cid == '000000'){
+					}else if(response[0].cid == '登录失败'){
 							plus.nativeUI.closeWaiting();//这里监听页面是否加载完毕，完成后关闭等待框
 							mui.toast("请求失败,请先登录");
 							//跳转到登录页面
@@ -157,6 +158,14 @@
 				}
 			});
 		};
+		window.addEventListener('refreshReportList',function(event){
+			qqnum = document.getElementById("qqnum").value;
+			if(qqnum == null || qqnum == "") {
+				mui.alert("请输入QQ号码!")
+			} else {
+				ajax(qqnum);
+			}
+		});
 	</script>
 
 </html>

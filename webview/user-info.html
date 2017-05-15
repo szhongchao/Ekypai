@@ -40,18 +40,22 @@
 				<form class="mui-input-group">
 					<div class="mui-input-row">
 						<label>激活码:</label>
-						<input id="uid" type="text" class="mui-input-clear" placeholder="激活码不能修改"editable="false">
+						<input id="uid" type="text" class="mui-input-clear"  placeholder="激活码不能修改"editable="false">
 					</div>
 					<div class="mui-input-row">
 						<label>用户QQ号:</label>
-						<input id="qqnum" type="text" class="mui-input-clear" placeholder="请输入QQ号码">
+						<input id="qqnum" type="text" class="mui-input-clear"  placeholder="请输入QQ号码">
 					</div>
 					<div class="mui-input-row">
 						<label>播放权限:</label>
-						<input id="fileidstr" type="text" class="mui-input-clear" placeholder="请输入权限">
+						<input id="fileidstr" type="text" class="mui-input-clear"  placeholder="请输入权限">
 					</div>
 					
 				</form>
+				<div class="mui-button-row">
+					<button type="button" id="delUserInfo" class="mui-btn mui-btn-primary">删除用户</button>&nbsp;&nbsp;&nbsp;&nbsp;
+					<button type="button" id="editUserInfo" class="mui-btn mui-btn-primary">修改用户</button>
+				</div>
 			</div>
 		</div>
 		<script src="../js/mui.min.js"></script>
@@ -63,42 +67,94 @@
 			});
 			var network = true;
 			var getUserInfo = function(uid){
-				url = baseUrl+'report/getuserInfo.action?uid='+uid;
-				mui.getJSON(url , function(response) {
-						document.getElementById("uid").value = response.carNum;
-						document.getElementById("qqnum").value = response.rentNetId;
-						document.getElementById("fileidstr").value = response.rentNum;
+				plus.nativeUI.showWaiting("正在请求服务器...");//这里是开始显示原生等待框
+				url = basUrl+'admin/searchqq.php?act=getUserInfo';
+				var data = {
+					uid: uid,
+				};
+				mui.ajax(url,{
+					data: data,
+					type: 'POST', //HTTP请求类型
+					timeout: 60000, //超时时间设置为60秒；
+					success: function(response) {
+						response = eval(response);
+						document.getElementById("uid").value = response[0].uid;
+						document.getElementById("qqnum").value = response[0].qqnum;
+						document.getElementById("fileidstr").value = response[0].fileidstr;
+						plus.nativeUI.closeWaiting();//这里监听页面是否加载完毕，完成后关闭等待框
+					},
+					error: function(xhr, type, errorThrown) {
+						plus.nativeUI.closeWaiting();//这里监听页面是否加载完毕，完成后关闭等待框
+						//异常处理；
+						mui.alert(type);
 					}
-				);
+					
+				});
 			}
 			var UserInfoAjax= function(qqnum,fileidstr,uid,action){
-				url =baseUrl+ 'admin/serarchqqnum?action='+action+
-											    '&qqnum='+qqnum+
-											    '&fileidstr='+fileidstr+
-											    '&uid='+uid;
-				mui.getJSON(url, function(response) {
-						 if(response.resultInfo != null && response.resultInfo.type =='1'){
-						 	/*mui.alert(message)
-						 	mui.back()*/
-						 	mui.init({
-								beforeback: function(){
-									//获得列表界面的webview
-									var list = plus.webview.getWebviewById('task-list');
-									//触发列表界面的自定义事件（refresh）,从而进行数据刷新
-									mui.alert(message);
-									mui.fire(list,'refreshReportList');
-									//返回true，继续页面关闭逻辑
-									return true;
-								}
-							});
-						 mui.back()
-						 }else if(response.resultInfo != null && response.resultInfo.type =='0'){
-						 	mui.alert("数据请求失败");
-						 }
+				url = basUrl+'admin/searchqq.php?act='+action;
+				var data = {
+					qqnum:qqnum,
+					fileidstr:fileidstr,
+					uid: uid,
+				};
+				//alert(url);
+				mui.ajax(url,{
+					data: data,
+					type: 'POST', //HTTP请求类型
+					timeout: 60000, //超时时间设置为60秒；
+					success: function(response) {
+						response = eval(response);
+						if(response[0].cid =="登录失败"){
+							mui.alert("请求失败,请先登录");
+							//跳转到登录页面
+							plus.webview.getLaunchWebview().show("pop-in");
+							return;
+						}else if(response[0].cid =="更新成功"){
+							if(response[0].affrows =="0"){
+								mui.toast("未更新");
+							}else{
+								mui.toast("更新成功");
+							}
+						}else if(response[0].cid =="删除成功"){
+							if(response[0].affrows =="0"){
+								mui.toast("未删除");
+							}else{
+								mui.toast("删除成功");
+							}
+						}else{
+							mui.alert("服务器未知错误");
+						}
+					mui.init({
+						beforeback: function(){
+							//获得列表界面的webview
+							var list = plus.webview.getWebviewById('webview/searchuser.html');
+							//触发列表界面的自定义事件（refresh）,从而进行数据刷新
+							mui.fire(list,'refreshReportList');
+							//返回true，继续页面关闭逻辑
+							return true;
+						}
+					});	
+					mui.back()
+					plus.nativeUI.closeWaiting();//这里监听页面是否加载完毕，完成后关闭等待框
+					},
+					error: function(xhr, type, errorThrown) {
+						plus.nativeUI.closeWaiting();//这里监听页面是否加载完毕，完成后关闭等待框
+						//异常处理；
+						mui.alert(type);
+						respnoseEl.innerHTML = '请求失败';
 					}
-				);
+					
+				});
 			}
+			document.getElementById("editUserInfo").addEventListener('tap', function() {
+				submitFun("editUserInfo");
+			});
+			document.getElementById("delUserInfo").addEventListener('tap', function() {
+				submitFun("delUserInfo");
+			});
 			var submitFun = function(action){
+				plus.nativeUI.showWaiting("正在请求服务器...");//这里是开始显示原生等待框
 				if(network){
 					var qqnum = document.getElementById("qqnum").value
 					var fileidstr  = document.getElementById("fileidstr").value
@@ -107,11 +163,11 @@
 						mui.alert("QQ号码最短为6个字符")
 						return;
 					}
-					if (fileidstr.length < 6) {
-						mui.alert("用户权限至少为4个字符");
+					if (fileidstr.length < 3) {
+						mui.alert("用户权限至少为3个字符");
 						return;
-					}if (uid.length < 14) {
-						mui.alert("激活码至少为14个字符");
+					}if (uid.length < 10) {
+						mui.alert("激活码至少为10个字符");
 						return;
 					}
 					UserInfoAjax(qqnum,fileidstr,uid,action);

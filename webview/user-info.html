@@ -84,11 +84,11 @@
 						document.getElementById("uid").value = response[0].uid;
 						document.getElementById("qqnum").value = response[0].qqnum;
 						document.getElementById("fileidstr").value = response[0].fileidstr;
-						if(response[0].openid == null || response[0].openid == ''){
-							var openid = copyFromClip();
-							//var openid1 = 'BCE6AAFE34F0BFCF486E1124DD085C77';
-						    var reg = /^[0-9A-Z]+$/ 
-							if(reg.test(openid) && openid.length > 30 && openid.length < 45){
+						if(response[0].openidmd5 == null || response[0].openidmd5 == ''){
+							var openid = copyFromClip().toString();
+							//var openid1 = '';
+						    var reg = /^[0-9a-z]+$/ 
+							if(reg.test(openid) && openid.length ==32){
 								var btnArray = ['是', '否'];
 								mui.confirm(openid, '是否复制来自粘贴板的自助码？', btnArray, function(e) {
 									if (e.index == 0) {
@@ -98,7 +98,7 @@
 								})
 							}
 						}else{
-							document.getElementById("openid").value = response[0].openid;
+							document.getElementById("openid").value = response[0].openidmd5;
 						}
 						
 						plus.nativeUI.closeWaiting();//这里监听页面是否加载完毕，完成后关闭等待框

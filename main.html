@@ -94,6 +94,12 @@
 			 //选项卡点击事件
 			mui('.mui-bar-tab').on('tap', 'a', function(e) {
 				var targetTab = this.getAttribute('href');
+				if(targetTab == 'webview/searchuser.html' ){
+					//获得列表界面的webview
+					var list = plus.webview.getWebviewById('webview/searchuser.html');
+					//触发列表界面的自定义事件（refresh）,从而进行数据刷新
+					mui.fire(list,'copyFromClip');
+				}
 				if (targetTab == activeTab) {
 					return;
 				}

@@ -50,6 +50,7 @@
 		mui.init({
 			swipeBack: false //关闭右滑关闭功能
 		});
+		
 		//发送请求按钮的点击事件 $qqnum = '10950160';
 		document.getElementById("confirm").addEventListener('tap', function() {
 			qqnum = document.getElementById("qqnum").value;
@@ -59,35 +60,10 @@
 				ajax(qqnum);
 			}
 		});
-
-		function copyToClip(uid) {
-			switch(plus.os.name) {
-				case "Android":
-					// Android平台: plus.android.*
-					var Context = plus.android.importClass("android.content.Context");
-					var main = plus.android.runtimeMainActivity();
-					var clip = main.getSystemService(Context.CLIPBOARD_SERVICE);
-					plus.android.invoke(clip, "setText", uid);
-					mui.alert("密码已复制到黏贴板。");
-					break;
-				case "iOS":
-					// iOS平台: plus.ios.*
-					var UIPasteboard  = plus.ios.importClass("UIPasteboard");
-					var generalPasteboard = UIPasteboard.generalPasteboard();
-					// 设置文本内容:
-					generalPasteboard.setValueforPasteboardType(uid, "public.utf8-plain-text");
-					// 获取文本内容:
-					//var value = generalPasteboard.valueForPasteboardType("public.utf8-plain-text");
-					mui.alert("密码已复制到黏贴板!");
-					break;
-				default:
-					// 其它平台
-					break;
-			}
-		}
 		mui(".mui-table-view").on('tap', '.mui-table-view-cell', function() {
 			var uid = this.getAttribute("id");
 			copyToClip(uid);
+			mui.alert("密码已复制到粘贴板。");
 		})
 		mui('#OA_task_2').on('slideleft', '.mui-table-view-cell', function(event) {
 			var uid = this.getAttribute("id");
@@ -164,6 +140,19 @@
 				mui.alert("请输入QQ号码!")
 			} else {
 				ajax(qqnum);
+			}
+		});
+		window.addEventListener('copyFromClip',function(event){
+			var copqqnum = parseInt(copyFromClip()).toString();
+			var reg = /^[0-9]+$/
+			if(reg.test(copqqnum) && copqqnum.length > 6 && copqqnum.length < 12){
+				var btnArray = ['是', '否'];
+				mui.confirm(copqqnum, '是否复制来自粘贴板的QQ号？', btnArray, function(e) {
+					if (e.index == 0) {
+						document.getElementById("qqnum").value = copqqnum;
+					} else {
+					}
+				})
 			}
 		});
 	</script>

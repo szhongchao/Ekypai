@@ -50,7 +50,10 @@
 						<label>播放权限:</label>
 						<input id="fileidstr" type="text" class="mui-input-clear"  placeholder="请输入权限">
 					</div>
-					
+					<div class="mui-input-row">
+						<label>自助码:</label>
+						<input id="openid" type="text" class="mui-input-clear"  placeholder="用户自助激活码">
+					</div>
 				</form>
 				<div class="mui-button-row">
 					<button type="button" id="delUserInfo" class="mui-btn mui-btn-primary">删除用户</button>&nbsp;&nbsp;&nbsp;&nbsp;
@@ -81,6 +84,23 @@
 						document.getElementById("uid").value = response[0].uid;
 						document.getElementById("qqnum").value = response[0].qqnum;
 						document.getElementById("fileidstr").value = response[0].fileidstr;
+						if(response[0].openid == null || response[0].openid == ''){
+							var openid = copyFromClip();
+							//var openid1 = 'BCE6AAFE34F0BFCF486E1124DD085C77';
+						    var reg = /^[0-9A-Z]+$/ 
+							if(reg.test(openid) && openid.length > 30 && openid.length < 45){
+								var btnArray = ['是', '否'];
+								mui.confirm(openid, '是否复制来自粘贴板的自助码？', btnArray, function(e) {
+									if (e.index == 0) {
+										document.getElementById("openid").value = openid;
+									} else {
+									}
+								})
+							}
+						}else{
+							document.getElementById("openid").value = response[0].openid;
+						}
+						
 						plus.nativeUI.closeWaiting();//这里监听页面是否加载完毕，完成后关闭等待框
 					},
 					error: function(xhr, type, errorThrown) {
@@ -91,12 +111,13 @@
 					
 				});
 			}
-			var UserInfoAjax= function(qqnum,fileidstr,uid,action){
+			var UserInfoAjax= function(qqnum,fileidstr,uid,openid,action){
 				url = basUrl+'admin/searchqq.php?act='+action;
 				var data = {
 					qqnum:qqnum,
 					fileidstr:fileidstr,
 					uid: uid,
+					openid:openid,
 				};
 				//alert(url);
 				mui.ajax(url,{
@@ -159,6 +180,7 @@
 					var qqnum = document.getElementById("qqnum").value
 					var fileidstr  = document.getElementById("fileidstr").value
 					var uid  = document.getElementById("uid").value
+					var openid  = document.getElementById("openid").value
 					if (qqnum.length < 5) {
 						mui.alert("QQ号码最短为6个字符")
 						return;
@@ -170,7 +192,7 @@
 						mui.alert("激活码至少为10个字符");
 						return;
 					}
-					UserInfoAjax(qqnum,fileidstr,uid,action);
+					UserInfoAjax(qqnum,fileidstr,uid,openid,action);
 				}else{
 					mui.toast("当前网络不给力，请稍后再试");
 				}
